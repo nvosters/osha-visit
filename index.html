@@ -4,80 +4,371 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Bauer Built • Surprise OSHA Visit – Manager Resource</title>
+    <!-- Tailwind (Play CDN for fastest publish) -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React & Babel (no-build approach) -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   </head>
   <body class="bg-gray-50">
     <div id="root"></div>
+
     <script type="text/babel">
+      // ==== No-build React version of the OSHA app (imports removed) ====
+      const { useMemo, useState, useEffect, useRef } = React;
+
       const COMPANY = {
         name: "Bauer Built, Inc.",
         logoSrc: "Bauer-Built.png",
         safetyHotline: "715-279-8972",
         safetyEmail: "Nick.Vosters@bauerbuilt.com",
+        hrEmail: "chelsea.schneider@bauerbuilt.com",
         backupSafetyName: "Reggie Adjei Poku",
         backupSafetyMobile: "715-279-7518",
+        backupSafetyHome: "715-672-2816",
         backupSafetyEmail: "Reggie.AdjeiPoku@bauerbuilt.com",
-        links: {
-          sdsLibrary: "https://bauerbuiltinc.sharepoint.com/:f:/s/SafetyandRisk/EmhIV-qK6SNAqkMPodbSWsIBiVzC01-YWIh68cRBqsDSiA?e=kFsEXM",
-          training: "https://bauerbuiltinc.sharepoint.com/:f:/s/SafetyandRisk/Eq-l1F604k5Hispq78Qc0ugByUTMxJ8wEnewmSihGjuRUg?e=RxWBvb",
-          loto: "https://bauerbuiltinc.sharepoint.com/:f:/s/SafetyandRisk/En9o5Uo8SfhIlf9ldViADzYBHshIYscTTtxeZ8OU5BJnpg?e=h0cDx1",
-        },
+        policiesUrl: "https://sites.google.com/view/bauerbuiltsafetypolicies/home",
+        oshaLogsUrl: "https://bauerbuiltinc.sharepoint.com/sites/SafetyandRisk/Safety%20Document%20Library?id=%2Fsites%2FSafetyandRisk%2FSafety%20Document%20Library%2FOSHA%20Logs&viewid=e4dbc77a-096b-4dee-9ac5-81ee623f3a69&newTargetListUrl=https%3A%2F%2Fbauerbuiltinc%2Esharepoint%2Ecom%2Fsites%2FSafetyandRisk%2FSafety%20Document%20Library",
       };
 
-      function App() {
+      const STATES = [
+        { code: "MN", name: "Minnesota", plan: "State Plan (MNOSHA)" },
+        { code: "SD", name: "South Dakota", plan: "Federal OSHA" },
+        { code: "ND", name: "North Dakota", plan: "Federal OSHA" },
+        { code: "NE", name: "Nebraska", plan: "Federal OSHA" },
+        { code: "MO", name: "Missouri", plan: "Federal OSHA" },
+        { code: "WI", name: "Wisconsin", plan: "Federal OSHA" },
+        { code: "IL", name: "Illinois", plan: "Federal OSHA (private sector)" },
+        { code: "IA", name: "Iowa", plan: "State Plan (Iowa OSHA)" },
+        { code: "MI", name: "Michigan", plan: "State Plan (MIOSHA)" },
+        { code: "IN", name: "Indiana", plan: "State Plan (IOSHA)" },
+      ];
+
+      const SCRIPTS = {
+        opening: `Thanks for visiting. I’m the site manager. I’ll contact our Safety team so they can join. While we coordinate, could I see your credentials and learn the purpose and scope of the inspection? We’ll identify an appropriate walkaround route and an employee representative.`,
+        scope: `To confirm, today’s inspection scope is limited to: [repeat their stated scope]. We’ll prepare a quiet space for the opening conference and collect any requested documents. Please direct document requests to me so we can log and respond formally.`,
+        records: `We will provide required records that exist and are applicable. If you need additional materials, please list them in writing and we will respond as soon as feasible. For items that take time to retrieve, we’ll provide an expected delivery date.`,
+        photos: `We understand you may take photos or measurements. We will take our own side‑by‑side photos/notes for our records. If something can be abated immediately, we will do so and note the correction.`,
+        interviews: `For employee interviews, we will facilitate a private space upon request. For management interviews, we’ll ensure company representation is present. Employees are free to participate or decline per OSHA guidance.`,
+        closing: `Thank you for your time today. Please let us know any observed conditions you recommend addressing. We will promptly correct feasible items and await the closing conference for next steps.`,
+      };
+
+      const STATE_NOTES = {
+        MN: { authority: "MNOSHA (State Plan)", phone: "651‑284‑5050", portal: "https://www.dli.mn.gov/business/workplace-safety-and-health/mnosha-compliance" },
+        IA: { authority: "Iowa OSHA (State Plan)", phone: "515‑242‑5870", portal: "https://www.iowaworkforcedevelopment.gov/osha" },
+        MI: { authority: "MIOSHA (State Plan)", phone: "800‑866‑4674", portal: "https://www.michigan.gov/leo/bureaus-agencies/miosha" },
+        IN: { authority: "IOSHA (State Plan)", phone: "317‑232‑2655", portal: "https://www.in.gov/dol/iosha/" },
+        SD: { authority: "Federal OSHA", phone: "800‑321‑6742", portal: "https://www.osha.gov" },
+        ND: { authority: "Federal OSHA", phone: "800‑321‑6742", portal: "https://www.osha.gov" },
+        NE: { authority: "Federal OSHA", phone: "800‑321‑6742", portal: "https://www.osha.gov" },
+        MO: { authority: "Federal OSHA", phone: "800‑321‑6742", portal: "https://www.osha.gov" },
+        WI: { authority: "Federal OSHA", phone: "800‑321‑6742", portal: "https://www.osha.gov" },
+        IL: { authority: "Federal OSHA (private sector)", phone: "800‑321‑6742", portal: "https://www.osha.gov" },
+      };
+
+      const KB = [
+        { q: "What do I do the moment OSHA arrives?", a: [
+          "Greet respectfully; ask to see credentials; note inspector name/badge.",
+          "Notify Safety (" + COMPANY.safetyHotline + ", " + COMPANY.safetyEmail + ") and your Regional Director.",
+          "Escort to a quiet space for opening conference; do not leave them unattended in production areas.",
+          "Confirm purpose/scope; stick to the scope during the walkaround.",
+        ], tags: ["arrival","opening","scope","credentials"] },
+        { q: "What records must be provided immediately?", a: [
+          "OSHA 300, 300A, 301 (or equivalent) for the required years.",
+          "HazCom program + SDS access; PPE hazard assessments if requested.",
+          "Training certificates relevant to scope (e.g., PIT/Forklift, LOTO, Confined Space).",
+          "Powered industrial truck inspections; machine guarding checks if relevant.",
+        ], tags: ["records","log","forms","300","training"] },
+        { q: "How should we handle photos and sampling?", a: [
+          "Take parallel photos/notes of anything OSHA photographs.",
+          "If safe and feasible, abate hazards immediately and document corrections.",
+          "Ask for copies of any sampling results when available.",
+        ], tags: ["photos","sampling","abatement"] },
+        { q: "Employee interviews – what are the rules?", a: [
+          "Hourly employees may be interviewed privately; provide a quiet space if requested.",
+          "Management interviews can include company representation; schedule if needed.",
+          "Do not coach employees. Remind them to speak truthfully and only to what they know.",
+        ], tags: ["interviews","employees","management"] },
+        { q: "What if they ask for documents we don’t have on hand?", a: [
+          "Request a written list. Provide what exists and is applicable.",
+          "Give an estimated delivery date for items requiring retrieval.",
+          "Log all requests and responses in the Document Request Tracker.",
+        ], tags: ["documents","requests","tracker"] },
+        { q: "Who regulates in my state?", a: [
+          "MN, MI, IA, IN have state OSHA plans; others listed here are generally under Federal OSHA for private sector.",
+          "Use the State selector on this page for the most relevant contact link and hotline.",
+        ], tags: ["state","plan","contact"] },
+        { q: "What happens at the closing conference?", a: [
+          "Inspector reviews observations, possible citations, abatement expectations, and timelines.",
+          "Request clarification on any alleged violations and abatement methods.",
+          "Take detailed notes; do not argue—share corrections and controls implemented.",
+        ], tags: ["closing","citations","abatement"] },
+        { q: "Top walkaround focus areas for tire/retread/warehousing?", a: [
+          "LOTO, machine guarding (buffers, cutters, saws).",
+          "PIT/Forklift training and daily inspections.",
+          "Jacking/cribbing/wheel chocks; wheel‑end safety.",
+          "Housekeeping, egress, fire protection (NFPA 13 clearances for tire storage).",
+          "HazCom/SDS access; eyewash/showers; air/energy isolation.",
+        ], tags: ["retread","forklift","LOTO","egress","fire","hazcom"] },
+      ];
+
+      const CHECKLIST = {
+        pre: [
+          "Maintain a ready‑to‑show binder/sharepoint: OSHA logs (300/300A/301), training rosters, PIT checklists, LOTO procedures, HazCom program/SDS access, emergency action plan, hearing conservation records, respirator fit testing as applicable.",
+          "Assign roles: Manager lead, Safety contact, Employee representative, Note‑taker/photographer.",
+          "Keep PPE handy for visitors (eye/ear/vest) and ensure housekeeping/egress are maintained daily.",
+          "Ensure first‑aid/eyewash inspections are current; fire extinguishers and exits unobstructed.",
+        ],
+        arrival: [
+          "Greet, verify credentials, log inspector name/time.",
+          "Call Safety (" + COMPANY.safetyHotline + ") and notify leadership; request virtual join if remote.",
+          "Prepare a conference room; provide visitor PPE.",
+          "Confirm scope and areas covered before movement.",
+        ],
+        during: [
+          "Escort at all times with Manager + Safety (if on) + employee rep.",
+          "Take parallel photos/notes; log verbal requests.",
+          "Fix simple hazards immediately when safe; document abatement.",
+          "Coordinate interviews; give private room if requested.",
+        ],
+        records: [
+          "Provide required OSHA logs and applicable training/inspection records.",
+          "For anything not on hand, request a written list and give a delivery date.",
+          "Store copies in the Document Request Tracker (date/time/who/what).",
+        ],
+        closing: [
+          "Attend closing; take verbatim notes of alleged items and timelines.",
+          "Ask clarifying questions on standards cited and abatement options.",
+          "Do not argue—note your corrective actions and controls.",
+        ],
+        post: [
+          "Begin abatement plan with owners, dates, and photos.",
+          "If citations arrive, calendar posting/contest deadlines and penalty timelines.",
+          "Share a brief after‑action with Safety and leadership (what went well / gaps / fixes).",
+        ],
+      };
+
+      const classNames = (...a) => a.filter(Boolean).join(" ");
+      const tokenize = (text) => (text||"")
+        .toLowerCase().replace(/[^a-z0-9\s]/g," ").split(/\s+/).filter(Boolean);
+      function scoreAnswer(query, entry) {
+        const qTokens = tokenize(query);
+        if (!qTokens.length) return 0;
+        const hay = tokenize(entry.q + " " + entry.a.join(" ") + " " + (entry.tags||[]).join(" "));
+        const set = new Set(hay);
+        let score = 0; qTokens.forEach(t=>{ if(set.has(t)) score+=2; else if(hay.some(h=>h.startsWith(t)||h.includes(t))) score+=1; });
+        if ((entry.tags||[]).some(t=>qTokens.includes(t))) score+=2; return score;
+      }
+
+      function Chatbot({ stateCode }) {
+        const [messages, setMessages] = useState([
+          { role: "bot", text: `Hi! I can help with surprise OSHA visits. Ask me things like “What do I do first?”, “What records do they get?”, or “Who regulates in ${stateCode}?”. If you need a person now, call Nick at ${COMPANY.safetyHotline} or ${COMPANY.backupSafetyName} at ${COMPANY.backupSafetyMobile}.` },
+        ]);
+        const [input, setInput] = useState("");
+        const bottomRef = useRef(null);
+        useEffect(()=>{ bottomRef.current?.scrollIntoView({behavior:"smooth"}); }, [messages]);
+        function answer(q){
+          const sInfo = STATE_NOTES[stateCode];
+          const sLine = sInfo ? `State: ${sInfo.authority}. Hotline: ${sInfo.phone}. Link: ${sInfo.portal}` : "";
+          const ranked = KB.map(e=>({e,s:scoreAnswer(q,e)})).sort((a,b)=>b.s-a.s);
+          const best = ranked[0];
+          let text = "";
+          if(!best||best.s<2){
+            text = `Here’s what I can suggest right now:\n• Verify credentials and scope.\n• Call Safety (${COMPANY.safetyHotline}).\n• Escort at all times; take parallel photos/notes.\n• Provide OSHA logs; request lists for additional docs.\n${sLine?"• "+sLine:""}`;
+          } else { text = `${best.e.a.map(x=>"• "+x).join("\n")}${sLine?"\n• "+sLine:""}`; }
+          return text;
+        }
+        function onSend(){ const q=input.trim(); if(!q) return; const reply=answer(q); setMessages(m=>[...m,{role:"user", text:q},{role:"bot", text:reply}]); setInput(""); }
         return (
-          <div className='min-h-screen bg-gray-50'>
-            <header className='sticky top-0 z-40 backdrop-blur bg-white/80 border-b'>
-              <div className='max-w-6xl mx-auto px-4 py-3 flex items-center justify-between'>
-                <div className='flex items-center gap-3'>
-                  <img src={COMPANY.logoSrc} alt='Bauer Built Logo' className='h-10 w-auto rounded' onError={(e)=>e.target.outerHTML='<div class="h-10 w-10 bg-gray-200 grid place-items-center rounded text-gray-500 text-xs">Logo</div>'} />
+          <div className="flex flex-col h-full">
+            <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+              {messages.map((m,i)=> (
+                <div key={i} className={classNames("rounded-2xl px-4 py-3 text-sm shadow-sm", m.role==="bot"?"bg-white border":"bg-gray-100")}>
+                  <div className="text-xs uppercase tracking-wide text-gray-500 mb-1">{m.role==="bot"?"Assistant":"You"}</div>
+                  <pre className="whitespace-pre-wrap leading-relaxed font-sans text-gray-800">{m.text}</pre>
+                </div>
+              ))}
+              <div ref={bottomRef} />
+            </div>
+            <div className="mt-2 flex gap-2">
+              <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={(e)=> e.key==="Enter" && onSend()} placeholder="Type a question…" className="flex-1 rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black" />
+              <button onClick={onSend} className="rounded-xl px-4 py-2 text-sm font-medium bg-black text-white hover:opacity-90">Send</button>
+            </div>
+          </div>
+        );
+      }
+
+      const Pill = ({children}) => (<span className="inline-flex items-center rounded-full bg-gray-100 border px-3 py-1 text-xs font-medium text-gray-800">{children}</span>);
+      const Section = ({title, subtitle, children, actions}) => (
+        <section className="bg-white border rounded-2xl p-5 md:p-6 shadow-sm">
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <h2 className="text-lg md:text-xl font-semibold text-gray-900">{title}</h2>
+              {subtitle && <p className="mt-1 text-sm text-gray-600">{subtitle}</p>}
+            </div>
+            {actions}
+          </div>
+          <div className="mt-4 space-y-4">{children}</div>
+        </section>
+      );
+      const Checklist = ({items}) => (<ul className="list-disc pl-5 space-y-2 text-sm text-gray-800">{items.map((x,i)=>(<li key={i}>{x}</li>))}</ul>);
+      const CopyButton = ({text, label="Copy"}) => { const [ok,setOk]=useState(false); return (<button className="rounded-xl border px-3 py-1.5 text-xs font-medium hover:bg-gray-50" onClick={async()=>{ try{ await navigator.clipboard.writeText(text); setOk(true); setTimeout(()=>setOk(false),1500);}catch{}}}>{ok?"Copied":label}</button>); };
+      const KeyValue = ({label, value, href}) => (
+        <div className="grid grid-cols-3 gap-2 text-sm">
+          <div className="text-gray-500">{label}</div>
+          <div className="col-span-2 font-medium text-gray-900">{href ? <a className="underline" href={href} target="_blank" rel="noreferrer">{value}</a> : value}</div>
+        </div>
+      );
+
+      function App(){
+        const [stateCode, setStateCode] = useState("WI");
+        const state = STATES.find(s=>s.code===stateCode);
+        const printChecklist = () => window.print();
+        const openingPacket = useMemo(()=>[
+          { name: "OSHA 300/300A/301 Logs", desc: "Most recent required years" },
+          { name: "HazCom Program & SDS Access", desc: "Chemical inventory + SDS path" },
+          { name: "LOTO Program & Machine‑Specific", desc: "Include annual audits if available" },
+          { name: "Forklift (PIT) Training & Inspections", desc: "Certificates + daily checklists" },
+          { name: "Confined Space / Hearing / Respiratory", desc: "If applicable at this site" },
+          { name: "Emergency Action Plan & Drill Records", desc: "Exits, fire extinguishers, eyewash" },
+        ], []);
+
+        return (
+          <div className="min-h-screen bg-gray-50">
+            <header className="sticky top-0 z-40 backdrop-blur bg-white/80 border-b">
+              <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  {COMPANY.logoSrc ? (
+                    <img src={COMPANY.logoSrc} alt="Bauer Built" className="h-10 w-auto" />
+                  ) : (
+                    <div className="h-9 w-9 rounded-2xl bg-black text-white grid place-items-center font-bold">BB</div>
+                  )}
                   <div>
-                    <h1 className='text-base md:text-lg font-semibold'>
-                      Surprise OSHA Visit – Manager Resource
-                    </h1>
-                    <p className='text-xs text-gray-500'>
-                      {COMPANY.name} • Tire Service • Warehousing • Retread
-                    </p>
+                    <h1 className="text-base md:text-lg font-semibold">Surprise OSHA Visit – Manager Resource</h1>
+                    <p className="text-xs text-gray-500">{COMPANY.name} • Tire Service • Warehousing • Retread</p>
                   </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <select className="rounded-xl border px-3 py-1.5 text-sm" value={stateCode} onChange={e=>setStateCode(e.target.value)} aria-label="Select state">
+                    {STATES.map(s=> <option key={s.code} value={s.code}>{s.name} ({s.code})</option>)}
+                  </select>
+                  <button onClick={printChecklist} className="rounded-xl border px-3 py-1.5 text-sm hover:bg-gray-50">Print</button>
                 </div>
               </div>
             </header>
 
-            <main className='max-w-6xl mx-auto px-4 py-6'>
-              <section className='bg-white border rounded-2xl p-6 shadow-sm'>
-                <h2 className='text-lg font-semibold mb-2'>Manager Resources</h2>
-                <ul className='list-disc pl-5 space-y-2 text-sm text-gray-800'>
-                  <li>
-                    <a href={COMPANY.links.sdsLibrary} target='_blank' rel='noreferrer' className='underline text-blue-700'>
-                      SDS Library
-                    </a> – Safety Data Sheets by facility and chemical
-                  </li>
-                  <li>
-                    <a href={COMPANY.links.training} target='_blank' rel='noreferrer' className='underline text-blue-700'>
-                      Training Materials
-                    </a> – Course materials and employee rosters
-                  </li>
-                  <li>
-                    <a href={COMPANY.links.loto} target='_blank' rel='noreferrer' className='underline text-blue-700'>
-                      Lockout/Tagout Procedures
-                    </a> – Machine-specific energy control steps
-                  </li>
-                </ul>
-              </section>
+            <main className="max-w-6xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 space-y-6">
+                <Section title="Immediate Actions (First 5 Minutes)" subtitle="Calm, courteous, controlled.">
+                  <div className="flex flex-wrap gap-2 mb-2">
+                    <Pill>Verify credentials</Pill><Pill>Call Safety</Pill><Pill>Confirm scope</Pill><Pill>Prepare meeting room</Pill><Pill>Escort at all times</Pill>
+                  </div>
+                  <Checklist items={CHECKLIST.arrival} />
+                  <div className="bg-gray-50 rounded-xl p-4 text-sm border">
+                    <div className="flex items-center justify-between gap-3"><div className="font-semibold">Opening Script</div><CopyButton text={SCRIPTS.opening} /></div>
+                    <p className="mt-2 text-gray-800 whitespace-pre-wrap">{SCRIPTS.opening}</p>
+                  </div>
+                </Section>
+
+                <Section title="During the Inspection" subtitle="Walkaround, photos, interviews, and requests.">
+                  <Checklist items={CHECKLIST.during} />
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="bg-gray-50 rounded-xl p-4 text-sm border">
+                      <div className="flex items-center justify-between gap-3"><div className="font-semibold">Scope Confirmation</div><CopyButton text={SCRIPTS.scope} /></div>
+                      <p className="mt-2 text-gray-800 whitespace-pre-wrap">{SCRIPTS.scope}</p>
+                    </div>
+                    <div className="bg-gray-50 rounded-xl p-4 text-sm border">
+                      <div className="flex items-center justify-between gap-3"><div className="font-semibold">Photos & Sampling</div><CopyButton text={SCRIPTS.photos} /></div>
+                      <p className="mt-2 text-gray-800 whitespace-pre-wrap">{SCRIPTS.photos}</p>
+                    </div>
+                  </div>
+                  <div className="bg-gray-50 rounded-xl p-4 text-sm border">
+                    <div className="flex items-center justify-between gap-3"><div className="font-semibold">Interview Guidance</div><CopyButton text={SCRIPTS.interviews} /></div>
+                    <p className="mt-2 text-gray-800 whitespace-pre-wrap">{SCRIPTS.interviews}</p>
+                  </div>
+                </Section>
+
+                <Section title="Records & Document Requests" subtitle="Provide what exists and is applicable. Log everything.">
+                  <Checklist items={CHECKLIST.records} />
+                  <div className="overflow-hidden rounded-xl border">
+                    <table className="w-full text-sm">
+                      <thead className="bg-gray-100 text-gray-700"><tr><th className="text-left p-3 font-semibold">Document</th><th className="text-left p-3 font-semibold">Notes</th></tr></thead>
+                      <tbody>
+                        {openingPacket.map((row,i)=> (
+                          <tr key={i} className="border-t"><td className="p-3 font-medium">{row.name}</td><td className="p-3 text-gray-700">{row.desc}</td></tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </Section>
+
+                <Section title="Closing & After‑Action" subtitle="Leave with clarity; then fix fast.">
+                  <Checklist items={[...CHECKLIST.closing, ...CHECKLIST.post]} />
+                  <div className="bg-gray-50 rounded-xl p-4 text-sm border">
+                    <div className="flex items-center justify-between gap-3"><div className="font-semibold">Closing Script</div><CopyButton text={SCRIPTS.closing} /></div>
+                    <p className="mt-2 text-gray-800 whitespace-pre-wrap">{SCRIPTS.closing}</p>
+                  </div>
+                </Section>
+
+                <Section title="Retread / Tire / Warehouse Focus" subtitle="High‑value items we know OSHA looks at in our operations.">
+                  <ul className="list-disc pl-5 space-y-2 text-sm text-gray-800">
+                    <li><span className="font-medium">Wheel‑End & Service Safety:</span> jacking/lifting per RP 262; wheel chocks; cribbing; torque and re‑torque; service truck setups.</li>
+                    <li><span className="font-medium">Machine Guarding & LOTO:</span> buffer/cutter guards; interlocks; written LOTO with machine‑specific steps; annual audits.</li>
+                    <li><span className="font-medium">PIT/Forklifts:</span> training certificates; daily checklists; seatbelts; pedestrian aisle marking; horn use at intersections.</li>
+                    <li><span className="font-medium">Fire & Storage:</span> tire stacking stability; NFPA 13 sprinkler clearance; no storage under sprinklers; housekeeping and egress.</li>
+                    <li><span className="font-medium">HazCom:</span> labeled containers; current SDS access; employee training; eyewash within 10 seconds where required.</li>
+                    <li><span className="font-medium">Hearing/Respiratory:</span> buffer station controls; hearing protection zones; fit testing where respirators are required.</li>
+                  </ul>
+                </Section>
+
+                <Section title="Disclaimers & Good Practice">
+                  <ul className="list-disc pl-5 space-y-2 text-sm text-gray-800">
+                    <li>State plan nuances exist (MNOSHA, MIOSHA, IOSHA, Iowa OSHA). Use the state selector here and verify any state‑specific posting, penalty, or administrative rules with Safety.</li>
+                    <li>If in doubt, politely ask the inspector for the specific standard or reference they’re applying and record it verbatim.</li>
+                    <li>Never alter records retroactively. Provide what exists; correct forward.</li>
+                  </ul>
+                </Section>
+              </div>
+
+              <div className="space-y-6">
+                <Section title="Your State" subtitle="Regulatory authority & quick links">
+                  <KeyValue label="State" value={`${state.name} (${state.code})`} />
+                  <KeyValue label="Plan" value={state.plan} />
+                  {STATE_NOTES[stateCode] && (<>
+                    <KeyValue label="Authority" value={STATE_NOTES[stateCode].authority} />
+                    <KeyValue label="Hotline" value={STATE_NOTES[stateCode].phone} />
+                    <KeyValue label="Website" value={STATE_NOTES[stateCode].portal} href={STATE_NOTES[stateCode].portal} />
+                  </>)}
+                  <div className="grid grid-cols-2 gap-2 pt-2">
+                    <a className="rounded-xl border px-3 py-2 text-sm text-center hover:bg-gray-50" href={`tel:${COMPANY.safetyHotline.replace(/[^0-9]/g,'')}`}>Call Nick Vosters</a>
+                    <a className="rounded-xl border px-3 py-2 text-sm text-center hover:bg-gray-50" href={`mailto:${COMPANY.safetyEmail}`}>Email Nick</a>
+                    <a className="rounded-xl border px-3 py-2 text-sm text-center hover:bg-gray-50" href={`tel:${(COMPANY.backupSafetyMobile||'').replace(/[^0-9]/g,'')}`}>Call {COMPANY.backupSafetyName}</a>
+                    <a className="rounded-xl border px-3 py-2 text-sm text-center hover:bg-gray-50" href={`mailto:${COMPANY.backupSafetyEmail}`}>Email {COMPANY.backupSafetyName}</a>
+                  </div>
+                </Section>
+
+                <Section title="Chatbot Help" subtitle="Ask questions in plain English">
+                  <div className="h-80"><Chatbot stateCode={stateCode} /></div>
+                </Section>
+
+                <<Section title="Company Resources" subtitle="Quick links for documents managers are most often asked to provide">
+                    <KeyValue label="Safety Policies" value="View policies (Google Sites)" href={COMPANY.policiesUrl} />
+                    <KeyValue label="OSHA Logs" value="Open OSHA 300/300A/301 folder (SharePoint)" href={COMPANY.oshaLogsUrl} />
+                    {/* Add these three */}
+                    <KeyValue label="SDS Library" value="Open SDS library (SharePoint)" href={COMPANY.sdsUrl} />
+                    <KeyValue label="Training Materials" value="Open training materials (SharePoint)" href={COMPANY.trainingUrl} />
+                    <KeyValue label="Lockout/Tagout Procedures" value="View LOTO procedures (SharePoint)" href={COMPANY.lotoUrl} />
+                  </Section>
+              </div>
             </main>
 
-            <footer className='max-w-6xl mx-auto px-4 pb-10 pt-4 text-xs text-gray-500'>
-              <div className='bg-yellow-50 border rounded-xl p-3'>
-                <div className='font-semibold text-yellow-900'>Heads-up</div>
-                <p className='mt-1'>
-                  This guide provides practical steps and scripts. It is not legal advice. For state-specific requirements
-                  or citation decisions, contact Safety or Counsel.
-                </p>
+
+            <footer className="max-w-6xl mx-auto px-4 pb-10 pt-4 text-xs text-gray-500">
+              <div className="bg-yellow-50 border rounded-xl p-3"><div className="font-semibold text-yellow-900">Heads‑up</div>
+                <p className="mt-1">This guide provides practical steps and scripts. It is not legal advice. For state‑specific requirements or citation decisions, contact Safety or Counsel.</p>
               </div>
-              <div className='mt-3'>© {new Date().getFullYear()} {COMPANY.name}. All rights reserved.</div>
+              <div className="mt-3">© {new Date().getFullYear()} {COMPANY.name}. All rights reserved.</div>
             </footer>
           </div>
         );
