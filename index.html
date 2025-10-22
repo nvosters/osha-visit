@@ -30,6 +30,10 @@
         backupSafetyEmail: "Reggie.AdjeiPoku@bauerbuilt.com",
         policiesUrl: "https://sites.google.com/view/bauerbuiltsafetypolicies/home",
         oshaLogsUrl: "https://bauerbuiltinc.sharepoint.com/sites/SafetyandRisk/Safety%20Document%20Library?id=%2Fsites%2FSafetyandRisk%2FSafety%20Document%20Library%2FOSHA%20Logs&viewid=e4dbc77a-096b-4dee-9ac5-81ee623f3a69&newTargetListUrl=https%3A%2F%2Fbauerbuiltinc%2Esharepoint%2Ecom%2Fsites%2FSafetyandRisk%2FSafety%20Document%20Library",
+        // NEW: manager resources
+        sdsUrl: "https://bauerbuiltinc.sharepoint.com/:f:/s/SafetyandRisk/EmhIV-qK6SNAqkMPodbSWsIBiVzC01-YWIh68cRBqsDSiA?e=kFsEXM",
+        trainingUrl: "https://bauerbuiltinc.sharepoint.com/:f:/s/SafetyandRisk/Eq-l1F604k5Hispq78Qc0ugByUTMxJ8wEnewmSihGjuRUg?e=RxWBvb",
+        lotoUrl: "https://bauerbuiltinc.sharepoint.com/:f:/s/SafetyandRisk/En9o5Uo8SfhIlf9ldViADzYBHshIYscTTtxeZ8OU5BJnpg?e=h0cDx1",
       };
 
       const STATES = [
@@ -49,22 +53,22 @@
         opening: `Thanks for visiting. I’m the site manager. I’ll contact our Safety team so they can join. While we coordinate, could I see your credentials and learn the purpose and scope of the inspection? We’ll identify an appropriate walkaround route and an employee representative.`,
         scope: `To confirm, today’s inspection scope is limited to: [repeat their stated scope]. We’ll prepare a quiet space for the opening conference and collect any requested documents. Please direct document requests to me so we can log and respond formally.`,
         records: `We will provide required records that exist and are applicable. If you need additional materials, please list them in writing and we will respond as soon as feasible. For items that take time to retrieve, we’ll provide an expected delivery date.`,
-        photos: `We understand you may take photos or measurements. We will take our own side‑by‑side photos/notes for our records. If something can be abated immediately, we will do so and note the correction.`,
+        photos: `We understand you may take photos or measurements. We will take our own side-by-side photos/notes for our records. If something can be abated immediately, we will do so and note the correction.`,
         interviews: `For employee interviews, we will facilitate a private space upon request. For management interviews, we’ll ensure company representation is present. Employees are free to participate or decline per OSHA guidance.`,
         closing: `Thank you for your time today. Please let us know any observed conditions you recommend addressing. We will promptly correct feasible items and await the closing conference for next steps.`,
       };
 
       const STATE_NOTES = {
-        MN: { authority: "MNOSHA (State Plan)", phone: "651‑284‑5050", portal: "https://www.dli.mn.gov/business/workplace-safety-and-health/mnosha-compliance" },
-        IA: { authority: "Iowa OSHA (State Plan)", phone: "515‑242‑5870", portal: "https://www.iowaworkforcedevelopment.gov/osha" },
-        MI: { authority: "MIOSHA (State Plan)", phone: "800‑866‑4674", portal: "https://www.michigan.gov/leo/bureaus-agencies/miosha" },
-        IN: { authority: "IOSHA (State Plan)", phone: "317‑232‑2655", portal: "https://www.in.gov/dol/iosha/" },
-        SD: { authority: "Federal OSHA", phone: "800‑321‑6742", portal: "https://www.osha.gov" },
-        ND: { authority: "Federal OSHA", phone: "800‑321‑6742", portal: "https://www.osha.gov" },
-        NE: { authority: "Federal OSHA", phone: "800‑321‑6742", portal: "https://www.osha.gov" },
-        MO: { authority: "Federal OSHA", phone: "800‑321‑6742", portal: "https://www.osha.gov" },
-        WI: { authority: "Federal OSHA", phone: "800‑321‑6742", portal: "https://www.osha.gov" },
-        IL: { authority: "Federal OSHA (private sector)", phone: "800‑321‑6742", portal: "https://www.osha.gov" },
+        MN: { authority: "MNOSHA (State Plan)", phone: "651-284-5050", portal: "https://www.dli.mn.gov/business/workplace-safety-and-health/mnosha-compliance" },
+        IA: { authority: "Iowa OSHA (State Plan)", phone: "515-242-5870", portal: "https://www.iowaworkforcedevelopment.gov/osha" },
+        MI: { authority: "MIOSHA (State Plan)", phone: "800-866-4674", portal: "https://www.michigan.gov/leo/bureaus-agencies/miosha" },
+        IN: { authority: "IOSHA (State Plan)", phone: "317-232-2655", portal: "https://www.in.gov/dol/iosha/" },
+        SD: { authority: "Federal OSHA", phone: "800-321-6742", portal: "https://www.osha.gov" },
+        ND: { authority: "Federal OSHA", phone: "800-321-6742", portal: "https://www.osha.gov" },
+        NE: { authority: "Federal OSHA", phone: "800-321-6742", portal: "https://www.osha.gov" },
+        MO: { authority: "Federal OSHA", phone: "800-321-6742", portal: "https://www.osha.gov" },
+        WI: { authority: "Federal OSHA", phone: "800-321-6742", portal: "https://www.osha.gov" },
+        IL: { authority: "Federal OSHA (private sector)", phone: "800-321-6742", portal: "https://www.osha.gov" },
       };
 
       const KB = [
@@ -107,7 +111,7 @@
         { q: "Top walkaround focus areas for tire/retread/warehousing?", a: [
           "LOTO, machine guarding (buffers, cutters, saws).",
           "PIT/Forklift training and daily inspections.",
-          "Jacking/cribbing/wheel chocks; wheel‑end safety.",
+          "Jacking/cribbing/wheel chocks; wheel-end safety.",
           "Housekeeping, egress, fire protection (NFPA 13 clearances for tire storage).",
           "HazCom/SDS access; eyewash/showers; air/energy isolation.",
         ], tags: ["retread","forklift","LOTO","egress","fire","hazcom"] },
@@ -115,10 +119,10 @@
 
       const CHECKLIST = {
         pre: [
-          "Maintain a ready‑to‑show binder/sharepoint: OSHA logs (300/300A/301), training rosters, PIT checklists, LOTO procedures, HazCom program/SDS access, emergency action plan, hearing conservation records, respirator fit testing as applicable.",
-          "Assign roles: Manager lead, Safety contact, Employee representative, Note‑taker/photographer.",
+          "Maintain a ready-to-show binder/sharepoint: OSHA logs (300/300A/301), training rosters, PIT checklists, LOTO procedures, HazCom program/SDS access, emergency action plan, hearing conservation records, respirator fit testing as applicable.",
+          "Assign roles: Manager lead, Safety contact, Employee representative, Note-taker/photographer.",
           "Keep PPE handy for visitors (eye/ear/vest) and ensure housekeeping/egress are maintained daily.",
-          "Ensure first‑aid/eyewash inspections are current; fire extinguishers and exits unobstructed.",
+          "Ensure first-aid/eyewash inspections are current; fire extinguishers and exits unobstructed.",
         ],
         arrival: [
           "Greet, verify credentials, log inspector name/time.",
@@ -145,7 +149,7 @@
         post: [
           "Begin abatement plan with owners, dates, and photos.",
           "If citations arrive, calendar posting/contest deadlines and penalty timelines.",
-          "Share a brief after‑action with Safety and leadership (what went well / gaps / fixes).",
+          "Share a brief after-action with Safety and leadership (what went well / gaps / fixes).",
         ],
       };
 
@@ -228,7 +232,7 @@
         const openingPacket = useMemo(()=>[
           { name: "OSHA 300/300A/301 Logs", desc: "Most recent required years" },
           { name: "HazCom Program & SDS Access", desc: "Chemical inventory + SDS path" },
-          { name: "LOTO Program & Machine‑Specific", desc: "Include annual audits if available" },
+          { name: "LOTO Program & Machine-Specific", desc: "Include annual audits if available" },
           { name: "Forklift (PIT) Training & Inspections", desc: "Certificates + daily checklists" },
           { name: "Confined Space / Hearing / Respiratory", desc: "If applicable at this site" },
           { name: "Emergency Action Plan & Drill Records", desc: "Exits, fire extinguishers, eyewash" },
@@ -303,7 +307,7 @@
                   </div>
                 </Section>
 
-                <Section title="Closing & After‑Action" subtitle="Leave with clarity; then fix fast.">
+                <Section title="Closing & After-Action" subtitle="Leave with clarity; then fix fast.">
                   <Checklist items={[...CHECKLIST.closing, ...CHECKLIST.post]} />
                   <div className="bg-gray-50 rounded-xl p-4 text-sm border">
                     <div className="flex items-center justify-between gap-3"><div className="font-semibold">Closing Script</div><CopyButton text={SCRIPTS.closing} /></div>
@@ -311,20 +315,20 @@
                   </div>
                 </Section>
 
-                <Section title="Retread / Tire / Warehouse Focus" subtitle="High‑value items we know OSHA looks at in our operations.">
+                <Section title="Retread / Tire / Warehouse Focus" subtitle="High-value items we know OSHA looks at in our operations.">
                   <ul className="list-disc pl-5 space-y-2 text-sm text-gray-800">
-                    <li><span className="font-medium">Wheel‑End & Service Safety:</span> jacking/lifting per RP 262; wheel chocks; cribbing; torque and re‑torque; service truck setups.</li>
-                    <li><span className="font-medium">Machine Guarding & LOTO:</span> buffer/cutter guards; interlocks; written LOTO with machine‑specific steps; annual audits.</li>
+                    <li><span className="font-medium">Wheel-End & Service Safety:</span> jacking/lifting; wheel chocks; cribbing; torque and re-torque; service truck setups.</li>
+                    <li><span className="font-medium">Machine Guarding & LOTO:</span> buffer/cutter guards; interlocks; written LOTO with machine-specific steps; annual audits.</li>
                     <li><span className="font-medium">PIT/Forklifts:</span> training certificates; daily checklists; seatbelts; pedestrian aisle marking; horn use at intersections.</li>
-                    <li><span className="font-medium">Fire & Storage:</span> tire stacking stability; NFPA 13 sprinkler clearance; no storage under sprinklers; housekeeping and egress.</li>
-                    <li><span className="font-medium">HazCom:</span> labeled containers; current SDS access; employee training; eyewash within 10 seconds where required.</li>
-                    <li><span className="font-medium">Hearing/Respiratory:</span> buffer station controls; hearing protection zones; fit testing where respirators are required.</li>
+                    <li><span className="font-medium">Fire & Storage:</span> tire stacking stability; NFPA 13 sprinkler clearance; no storage directly under sprinklers; housekeeping and egress.</li>
+                    <li><span className="font-medium">HazCom:</span> labeled containers; current SDS access; employee training; eyewash inspections.</li>
+                    <li><span className="font-medium">Hearing/Respiratory:</span> buffer station controls; hearing protection zones; annual audiograms.</li>
                   </ul>
                 </Section>
 
                 <Section title="Disclaimers & Good Practice">
                   <ul className="list-disc pl-5 space-y-2 text-sm text-gray-800">
-                    <li>State plan nuances exist (MNOSHA, MIOSHA, IOSHA, Iowa OSHA). Use the state selector here and verify any state‑specific posting, penalty, or administrative rules with Safety.</li>
+                    <li>State plan nuances exist (MNOSHA, MIOSHA, IOSHA, Iowa OSHA). Use the state selector here and verify any state-specific posting, penalty, or administrative rules with Safety.</li>
                     <li>If in doubt, politely ask the inspector for the specific standard or reference they’re applying and record it verbatim.</li>
                     <li>Never alter records retroactively. Provide what exists; correct forward.</li>
                   </ul>
@@ -355,13 +359,17 @@
                 <Section title="Company Resources" subtitle="Quick links for documents managers are most often asked to provide">
                   <KeyValue label="Safety Policies" value="View policies (Google Sites)" href={COMPANY.policiesUrl} />
                   <KeyValue label="OSHA Logs" value="Open OSHA 300/300A/301 folder (SharePoint)" href={COMPANY.oshaLogsUrl} />
+                  <!-- NEW: three links below -->
+                  <KeyValue label="SDS Library" value="Open SDS library (SharePoint)" href={COMPANY.sdsUrl} />
+                  <KeyValue label="Training Materials" value="Open training materials (SharePoint)" href={COMPANY.trainingUrl} />
+                  <KeyValue label="Lockout/Tagout Procedures" value="View LOTO procedures (SharePoint)" href={COMPANY.lotoUrl} />
                 </Section>
               </div>
             </main>
 
             <footer className="max-w-6xl mx-auto px-4 pb-10 pt-4 text-xs text-gray-500">
-              <div className="bg-yellow-50 border rounded-xl p-3"><div className="font-semibold text-yellow-900">Heads‑up</div>
-                <p className="mt-1">This guide provides practical steps and scripts. It is not legal advice. For state‑specific requirements or citation decisions, contact Safety or Counsel.</p>
+              <div className="bg-yellow-50 border rounded-xl p-3"><div className="font-semibold text-yellow-900">Heads-up</div>
+                <p className="mt-1">This guide provides practical steps and scripts. It is not legal advice. For state-specific requirements or citation decisions, contact Safety or Counsel.</p>
               </div>
               <div className="mt-3">© {new Date().getFullYear()} {COMPANY.name}. All rights reserved.</div>
             </footer>
@@ -373,4 +381,3 @@
     </script>
   </body>
 </html>
-
