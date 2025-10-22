@@ -28,7 +28,6 @@
         policiesUrl: "https://sites.google.com/view/bauerbuiltsafetypolicies/home",
         oshaLogsUrl:
           "https://bauerbuiltinc.sharepoint.com/sites/SafetyandRisk/Safety%20Document%20Library?id=%2Fsites%2FSafetyandRisk%2FSafety%20Document%20Library%2FOSHA%20Logs&viewid=e4dbc77a-096b-4dee-9ac5-81ee623f3a69&newTargetListUrl=https%3A%2F%2Fbauerbuiltinc%2Esharepoint%2Ecom%2Fsites%2FSafetyandRisk%2FSafety%20Document%20Library",
-        // Added manager resource links
         sdsUrl:
           "https://bauerbuiltinc.sharepoint.com/:f:/s/SafetyandRisk/EmhIV-qK6SNAqkMPodbSWsIBiVzC01-YWIh68cRBqsDSiA?e=kFsEXM",
         trainingUrl:
@@ -51,12 +50,18 @@
       ];
 
       const SCRIPTS = {
-        opening: `Thanks for visiting. I’m the site manager. I’ll contact our Safety team so they can join. While we coordinate, could I see your credentials and learn the purpose and scope of the inspection? We’ll identify an appropriate walkaround route and an employee representative.`,
-        scope: `To confirm, today’s inspection scope is limited to: [repeat their stated scope]. We’ll prepare a quiet space for the opening conference and collect any requested documents. Please direct document requests to me so we can log and respond formally.`,
-        records: `We will provide required records that exist and are applicable. If you need additional materials, please list them in writing and we will respond as soon as feasible. For items that take time to retrieve, we’ll provide an expected delivery date.`,
-        photos: `We understand you may take photos or measurements. We will take our own side-by-side photos/notes for our records. If something can be abated immediately, we will do so and note the correction.`,
-        interviews: `For employee interviews, we will facilitate a private space upon request. For management interviews, we’ll ensure company representation is present. Employees are free to participate or decline per OSHA guidance.`,
-        closing: `Thank you for your time today. Please let us know any observed conditions you recommend addressing. We will promptly correct feasible items and await the closing conference for next steps.`,
+        opening:
+          "Thanks for visiting. I’m the site manager. I’ll contact our Safety team so they can join. While we coordinate, could I see your credentials and learn the purpose and scope of the inspection? We’ll identify an appropriate walkaround route and an employee representative.",
+        scope:
+          "To confirm, today’s inspection scope is limited to: [repeat their stated scope]. We’ll prepare a quiet space for the opening conference and collect any requested documents. Please direct document requests to me so we can log and respond formally.",
+        records:
+          "We will provide required records that exist and are applicable. If you need additional materials, please list them in writing and we will respond as soon as feasible. For items that take time to retrieve, we’ll provide an expected delivery date.",
+        photos:
+          "We understand you may take photos or measurements. We will take our own side-by-side photos/notes for our records. If something can be abated immediately, we will do so and note the correction.",
+        interviews:
+          "For employee interviews, we will facilitate a private space upon request. For management interviews, we’ll ensure company representation is present. Employees are free to participate or decline per OSHA guidance.",
+        closing:
+          "Thank you for your time today. Please let us know any observed conditions you recommend addressing. We will promptly correct feasible items and await the closing conference for next steps.",
       };
 
       const STATE_NOTES = {
@@ -81,7 +86,7 @@
         ], tags: ["arrival","opening","scope","credentials"] },
         { q: "What records must be provided immediately?", a: [
           "OSHA 300, 300A, 301 (or equivalent) for the required years.",
-          "HazCom program + SDS access; PPE hazard assessments if requested.",
+          "HazCom program and SDS access; PPE hazard assessments if requested.",
           "Training certificates relevant to scope (e.g., PIT/Forklift, LOTO, Confined Space).",
           "Powered industrial truck inspections; machine guarding checks if relevant.",
         ], tags: ["records","log","forms","300","training"] },
@@ -112,7 +117,7 @@
         { q: "Top walkaround focus areas for tire/retread/warehousing?", a: [
           "LOTO, machine guarding (buffers, cutters, saws).",
           "PIT/Forklift training and daily inspections.",
-          "Jacking/cribbing/wheel chocks; wheel-end safety.",
+          "Jacking/lifting per RP 262; wheel chocks; cribbing; torque and re-torque; service truck setups.",
           "Housekeeping, egress, fire protection (NFPA 13 clearances for tire storage).",
           "HazCom/SDS access; eyewash/showers; air/energy isolation.",
         ], tags: ["retread","forklift","LOTO","egress","fire","hazcom"] },
@@ -155,57 +160,113 @@
       };
 
       const classNames = (...a) => a.filter(Boolean).join(" ");
-      const tokenize = (text) => (text||"")
-        .toLowerCase().replace(/[^a-z0-9\s]/g," ").split(/\s+/).filter(Boolean);
+      const tokenize = (text) =>
+        (text || "").toLowerCase().replace(/[^a-z0-9\s]/g, " ").split(/\s+/).filter(Boolean);
       function scoreAnswer(query, entry) {
         const qTokens = tokenize(query);
         if (!qTokens.length) return 0;
-        const hay = tokenize(entry.q + " " + entry.a.join(" ") + " " + (entry.tags||[]).join(" "));
+        const hay = tokenize(entry.q + " " + entry.a.join(" ") + " " + (entry.tags || []).join(" "));
         const set = new Set(hay);
-        let score = 0; qTokens.forEach(t=>{ if(set.has(t)) score+=2; else if(hay.some(h=>h.startsWith(t)||h.includes(t))) score+=1; });
-        if ((entry.tags||[]).some(t=>qTokens.includes(t))) score+=2; return score;
+        let score = 0;
+        qTokens.forEach((t) => {
+          if (set.has(t)) score += 2;
+          else if (hay.some((h) => h.startsWith(t) || h.includes(t))) score += 1;
+        });
+        if ((entry.tags || []).some((t) => qTokens.includes(t))) score += 2;
+        return score;
       }
 
       function Chatbot({ stateCode }) {
         const [messages, setMessages] = useState([
-          { role: "bot", text: `Hi! I can help with surprise OSHA visits. Ask me things like “What do I do first?”, “What records do they get?”, or “Who regulates in ${stateCode}?”. If you need a person now, call Nick at ${COMPANY.safetyHotline} or ${COMPANY.backupSafetyName} at ${COMPANY.backupSafetyMobile}.` },
+          {
+            role: "bot",
+            text:
+              "Hi! I can help with surprise OSHA visits. Ask me things like “What do I do first?”, “What records do they get?”, or “Who regulates in " +
+              stateCode +
+              "?”. If you need a person now, call Nick at " +
+              COMPANY.safetyHotline +
+              " or " +
+              COMPANY.backupSafetyName +
+              " at " +
+              COMPANY.backupSafetyMobile +
+              ".",
+          },
         ]);
         const [input, setInput] = useState("");
         const bottomRef = useRef(null);
-        useEffect(()=>{ bottomRef.current?.scrollIntoView({behavior:"smooth"}); }, [messages]);
-        function answer(q){
+        useEffect(() => {
+          bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+        }, [messages]);
+        function answer(q) {
           const sInfo = STATE_NOTES[stateCode];
-          const sLine = sInfo ? `State: ${sInfo.authority}. Hotline: ${sInfo.phone}. Link: ${sInfo.portal}` : "";
-          const ranked = KB.map(e=>({e,s:scoreAnswer(q,e)})).sort((a,b)=>b.s-a.s);
+          const sLine = sInfo
+            ? "State: " + sInfo.authority + ". Hotline: " + sInfo.phone + ". Link: " + sInfo.portal
+            : "";
+          const ranked = KB.map((e) => ({ e, s: scoreAnswer(q, e) })).sort((a, b) => b.s - a.s);
           const best = ranked[0];
-          let text = "";
-          if(!best||best.s<2){
-            text = `Here’s what I can suggest right now:\n• Verify credentials and scope.\n• Call Safety (${COMPANY.safetyHotline}).\n• Escort at all times; take parallel photos/notes.\n• Provide OSHA logs; request lists for additional docs.\n${sLine?"• "+sLine:""}`;
-          } else { text = `${best.e.a.map(x=>"• "+x).join("\n")}${sLine?"\n• "+sLine:""}`; }
-          return text;
+          if (!best || best.s < 2) {
+            return (
+              "Here’s what I can suggest right now:\n• Verify credentials and scope.\n• Call Safety (" +
+              COMPANY.safetyHotline +
+              ").\n• Escort at all times; take parallel photos/notes.\n• Provide OSHA logs; request lists for additional docs.\n" +
+              (sLine ? "• " + sLine : "")
+            );
+          }
+          return best.e.a.map((x) => "• " + x).join("\n") + (sLine ? "\n• " + sLine : "");
         }
-        function onSend(){ const q=input.trim(); if(!q) return; const reply=answer(q); setMessages(m=>[...m,{role:"user", text:q},{role:"bot", text:reply}]); setInput(""); }
+        function onSend() {
+          const q = input.trim();
+          if (!q) return;
+          const reply = answer(q);
+          setMessages((m) => [...m, { role: "user", text: q }, { role: "bot", text: reply }]);
+          setInput("");
+        }
         return (
           <div className="flex flex-col h-full">
             <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-              {messages.map((m,i)=> (
-                <div key={i} className={classNames("rounded-2xl px-4 py-3 text-sm shadow-sm", m.role==="bot"?"bg-white border":"bg-gray-100")}>
-                  <div className="text-xs uppercase tracking-wide text-gray-500 mb-1">{m.role==="bot"?"Assistant":"You"}</div>
-                  <pre className="whitespace-pre-wrap leading-relaxed font-sans text-gray-800">{m.text}</pre>
+              {messages.map((m, i) => (
+                <div
+                  key={i}
+                  className={classNames(
+                    "rounded-2xl px-4 py-3 text-sm shadow-sm",
+                    m.role === "bot" ? "bg-white border" : "bg-gray-100"
+                  )}
+                >
+                  <div className="text-xs uppercase tracking-wide text-gray-500 mb-1">
+                    {m.role === "bot" ? "Assistant" : "You"}
+                  </div>
+                  <pre className="whitespace-pre-wrap leading-relaxed font-sans text-gray-800">
+                    {m.text}
+                  </pre>
                 </div>
               ))}
               <div ref={bottomRef} />
             </div>
             <div className="mt-2 flex gap-2">
-              <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={(e)=> e.key==="Enter" && onSend()} placeholder="Type a question…" className="flex-1 rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black" />
-              <button onClick={onSend} className="rounded-xl px-4 py-2 text-sm font-medium bg-black text-white hover:opacity-90">Send</button>
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && onSend()}
+                placeholder="Type a question…"
+                className="flex-1 rounded-xl border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+              />
+              <button
+                onClick={onSend}
+                className="rounded-xl px-4 py-2 text-sm font-medium bg-black text-white hover:opacity-90"
+              >
+                Send
+              </button>
             </div>
           </div>
         );
       }
 
-      const Pill = ({children}) => (<span className="inline-flex items-center rounded-full bg-gray-100 border px-3 py-1 text-xs font-medium text-gray-800">{children}</span>);
-      const Section = ({title, subtitle, children, actions}) => (
+      const Pill = ({ children }) => (
+        <span className="inline-flex items-center rounded-full bg-gray-100 border px-3 py-1 text-xs font-medium text-gray-800">
+          {children}
+        </span>
+      );
+      const Section = ({ title, subtitle, children, actions }) => (
         <section className="bg-white border rounded-2xl p-5 md:p-6 shadow-sm">
           <div className="flex items-start justify-between gap-4">
             <div>
@@ -217,27 +278,60 @@
           <div className="mt-4 space-y-4">{children}</div>
         </section>
       );
-      const Checklist = ({items}) => (<ul className="list-disc pl-5 space-y-2 text-sm text-gray-800">{items.map((x,i)=>(<li key={i}>{x}</li>))}</ul>);
-      const CopyButton = ({text, label="Copy"}) => { const [ok,setOk]=useState(false); return (<button className="rounded-xl border px-3 py-1.5 text-xs font-medium hover:bg-gray-50" onClick={async()=>{ try{ await navigator.clipboard.writeText(text); setOk(true); setTimeout(()=>setOk(false),1500);}catch{}}}>{ok?"Copied":label}</button>); };
-      const KeyValue = ({label, value, href}) => (
+      const Checklist = ({ items }) => (
+        <ul className="list-disc pl-5 space-y-2 text-sm text-gray-800">
+          {items.map((x, i) => (
+            <li key={i}>{x}</li>
+          ))}
+        </ul>
+      );
+      const CopyButton = ({ text, label = "Copy" }) => {
+        const [ok, setOk] = useState(false);
+        return (
+          <button
+            className="rounded-xl border px-3 py-1.5 text-xs font-medium hover:bg-gray-50"
+            onClick={async () => {
+              try {
+                await navigator.clipboard.writeText(text);
+                setOk(true);
+                setTimeout(() => setOk(false), 1500);
+              } catch {}
+            }}
+          >
+            {ok ? "Copied" : label}
+          </button>
+        );
+      };
+      const KeyValue = ({ label, value, href }) => (
         <div className="grid grid-cols-3 gap-2 text-sm">
           <div className="text-gray-500">{label}</div>
-          <div className="col-span-2 font-medium text-gray-900">{href ? <a className="underline" href={href} target="_blank" rel="noreferrer">{value}</a> : value}</div>
+          <div className="col-span-2 font-medium text-gray-900">
+            {href ? (
+              <a className="underline" href={href} target="_blank" rel="noreferrer">
+                {value}
+              </a>
+            ) : (
+              value
+            )}
+          </div>
         </div>
       );
 
-      function App(){
+      function App() {
         const [stateCode, setStateCode] = useState("WI");
-        const state = STATES.find(s=>s.code===stateCode);
+        const state = STATES.find((s) => s.code === stateCode);
         const printChecklist = () => window.print();
-        const openingPacket = useMemo(()=>[
-          { name: "OSHA 300/300A/301 Logs", desc: "Most recent required years" },
-          { name: "HazCom Program & SDS Access", desc: "Chemical inventory + SDS path" },
-          { name: "LOTO Program & Machine-Specific", desc: "Include annual audits if available" },
-          { name: "Forklift (PIT) Training & Inspections", desc: "Certificates + daily checklists" },
-          { name: "Confined Space / Hearing / Respiratory", desc: "If applicable at this site" },
-          { name: "Emergency Action Plan & Drill Records", desc: "Exits, fire extinguishers, eyewash" },
-        ], []);
+        const openingPacket = useMemo(
+          () => [
+            { name: "OSHA 300/300A/301 Logs", desc: "Most recent required years" },
+            { name: "HazCom Program & SDS Access", desc: "Chemical inventory + SDS path" },
+            { name: "LOTO Program & Machine-Specific", desc: "Include annual audits if available" },
+            { name: "Forklift (PIT) Training & Inspections", desc: "Certificates + daily checklists" },
+            { name: "Confined Space / Hearing / Respiratory", desc: "If applicable at this site" },
+            { name: "Emergency Action Plan & Drill Records", desc: "Exits, fire extinguishers, eyewash" },
+          ],
+          []
+        );
 
         return (
           <div className="min-h-screen bg-gray-50">
@@ -247,18 +341,38 @@
                   {COMPANY.logoSrc ? (
                     <img src={COMPANY.logoSrc} alt="Bauer Built" className="h-10 w-auto" />
                   ) : (
-                    <div className="h-9 w-9 rounded-2xl bg-black text-white grid place-items-center font-bold">BB</div>
+                    <div className="h-9 w-9 rounded-2xl bg-black text-white grid place-items-center font-bold">
+                      BB
+                    </div>
                   )}
                   <div>
-                    <h1 className="text-base md:text-lg font-semibold">Surprise OSHA Visit – Manager Resource</h1>
-                    <p className="text-xs text-gray-500">{COMPANY.name} • Tire Service • Warehousing • Retread</p>
+                    <h1 className="text-base md:text-lg font-semibold">
+                      Surprise OSHA Visit – Manager Resource
+                    </h1>
+                    <p className="text-xs text-gray-500">
+                      {COMPANY.name} • Tire Service • Warehousing • Retread
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <select className="rounded-xl border px-3 py-1.5 text-sm" value={stateCode} onChange={e=>setStateCode(e.target.value)} aria-label="Select state">
-                    {STATES.map(s=> <option key={s.code} value={s.code}>{s.name} ({s.code})</option>)}
+                  <select
+                    className="rounded-xl border px-3 py-1.5 text-sm"
+                    value={stateCode}
+                    onChange={(e) => setStateCode(e.target.value)}
+                    aria-label="Select state"
+                  >
+                    {STATES.map((s) => (
+                      <option key={s.code} value={s.code}>
+                        {s.name} ({s.code})
+                      </option>
+                    ))}
                   </select>
-                  <button onClick={printChecklist} className="rounded-xl border px-3 py-1.5 text-sm hover:bg-gray-50">Print</button>
+                  <button
+                    onClick={printChecklist}
+                    className="rounded-xl border px-3 py-1.5 text-sm hover:bg-gray-50"
+                  >
+                    Print
+                  </button>
                 </div>
               </div>
             </header>
@@ -267,11 +381,18 @@
               <div className="lg:col-span-2 space-y-6">
                 <Section title="Immediate Actions (First 5 Minutes)" subtitle="Calm, courteous, controlled.">
                   <div className="flex flex-wrap gap-2 mb-2">
-                    <Pill>Verify credentials</Pill><Pill>Call Safety</Pill><Pill>Confirm scope</Pill><Pill>Prepare meeting room</Pill><Pill>Escort at all times</Pill>
+                    <Pill>Verify credentials</Pill>
+                    <Pill>Call Safety</Pill>
+                    <Pill>Confirm scope</Pill>
+                    <Pill>Prepare meeting room</Pill>
+                    <Pill>Escort at all times</Pill>
                   </div>
                   <Checklist items={CHECKLIST.arrival} />
                   <div className="bg-gray-50 rounded-xl p-4 text-sm border">
-                    <div className="flex items-center justify-between gap-3"><div className="font-semibold">Opening Script</div><CopyButton text={SCRIPTS.opening} /></div>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="font-semibold">Opening Script</div>
+                      <CopyButton text={SCRIPTS.opening} />
+                    </div>
                     <p className="mt-2 text-gray-800 whitespace-pre-wrap">{SCRIPTS.opening}</p>
                   </div>
                 </Section>
@@ -280,16 +401,25 @@
                   <Checklist items={CHECKLIST.during} />
                   <div className="grid md:grid-cols-2 gap-4">
                     <div className="bg-gray-50 rounded-xl p-4 text-sm border">
-                      <div className="flex items-center justify-between gap-3"><div className="font-semibold">Scope Confirmation</div><CopyButton text={SCRIPTS.scope} /></div>
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="font-semibold">Scope Confirmation</div>
+                        <CopyButton text={SCRIPTS.scope} />
+                      </div>
                       <p className="mt-2 text-gray-800 whitespace-pre-wrap">{SCRIPTS.scope}</p>
                     </div>
                     <div className="bg-gray-50 rounded-xl p-4 text-sm border">
-                      <div className="flex items-center justify-between gap-3"><div className="font-semibold">Photos & Sampling</div><CopyButton text={SCRIPTS.photos} /></div>
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="font-semibold">Photos & Sampling</div>
+                        <CopyButton text={SCRIPTS.photos} />
+                      </div>
                       <p className="mt-2 text-gray-800 whitespace-pre-wrap">{SCRIPTS.photos}</p>
                     </div>
                   </div>
                   <div className="bg-gray-50 rounded-xl p-4 text-sm border">
-                    <div className="flex items-center justify-between gap-3"><div className="font-semibold">Interview Guidance</div><CopyButton text={SCRIPTS.interviews} /></div>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="font-semibold">Interview Guidance</div>
+                      <CopyButton text={SCRIPTS.interviews} />
+                    </div>
                     <p className="mt-2 text-gray-800 whitespace-pre-wrap">{SCRIPTS.interviews}</p>
                   </div>
                 </Section>
@@ -298,10 +428,18 @@
                   <Checklist items={CHECKLIST.records} />
                   <div className="overflow-hidden rounded-xl border">
                     <table className="w-full text-sm">
-                      <thead className="bg-gray-100 text-gray-700"><tr><th className="text-left p-3 font-semibold">Document</th><th className="text-left p-3 font-semibold">Notes</th></tr></thead>
+                      <thead className="bg-gray-100 text-gray-700">
+                        <tr>
+                          <th className="text-left p-3 font-semibold">Document</th>
+                          <th className="text-left p-3 font-semibold">Notes</th>
+                        </tr>
+                      </thead>
                       <tbody>
-                        {openingPacket.map((row,i)=> (
-                          <tr key={i} className="border-t"><td className="p-3 font-medium">{row.name}</td><td className="p-3 text-gray-700">{row.desc}</td></tr>
+                        {openingPacket.map((row, i) => (
+                          <tr key={i} className="border-t">
+                            <td className="p-3 font-medium">{row.name}</td>
+                            <td className="p-3 text-gray-700">{row.desc}</td>
+                          </tr>
                         ))}
                       </tbody>
                     </table>
@@ -311,17 +449,23 @@
                 <Section title="Closing & After-Action" subtitle="Leave with clarity; then fix fast.">
                   <Checklist items={[...CHECKLIST.closing, ...CHECKLIST.post]} />
                   <div className="bg-gray-50 rounded-xl p-4 text-sm border">
-                    <div className="flex items-center justify-between gap-3"><div className="font-semibold">Closing Script</div><CopyButton text={SCRIPTS.closing} /></div>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="font-semibold">Closing Script</div>
+                      <CopyButton text={SCRIPTS.closing} />
+                    </div>
                     <p className="mt-2 text-gray-800 whitespace-pre-wrap">{SCRIPTS.closing}</p>
                   </div>
                 </Section>
 
                 <Section title="Retread / Tire / Warehouse Focus" subtitle="High-value items we know OSHA looks at in our operations.">
                   <ul className="list-disc pl-5 space-y-2 text-sm text-gray-800">
-                    <li><span className="font-medium">Wheel-End &amp; Service Safety:</span>{" "}jacking/lifting per RP 262; wheel chocks; cribbing; torque and re-torque; service truck setups.</li>
-                    <li><span className="font-medium">Machine Guarding & LOTO:</span> buffer/cutter guards; interlocks; written LOTO with machine-specific steps; annual audits.</li>
+                    <li>
+                      <span className="font-medium">Wheel-End &amp; Service Safety:</span>{" "}
+                      jacking/lifting per RP 262; wheel chocks; cribbing; torque and re-torque; service truck setups.
+                    </li>
+                    <li><span className="font-medium">Machine Guarding &amp; LOTO:</span> buffer/cutter guards; interlocks; written LOTO with machine-specific steps; annual audits.</li>
                     <li><span className="font-medium">PIT/Forklifts:</span> training certificates; daily checklists; seatbelts; pedestrian aisle marking; horn use at intersections.</li>
-                    <li><span className="font-medium">Fire & Storage:</span> tire stacking stability; NFPA 13 sprinkler clearance; no storage under sprinklers; housekeeping and egress.</li>
+                    <li><span className="font-medium">Fire &amp; Storage:</span> tire stacking stability; NFPA 13 sprinkler clearance; no storage under sprinklers; housekeeping and egress.</li>
                     <li><span className="font-medium">HazCom:</span> labeled containers; current SDS access; employee training; eyewash within 10 seconds where required.</li>
                     <li><span className="font-medium">Hearing/Respiratory:</span> buffer station controls; hearing protection zones; fit testing where respirators are required.</li>
                   </ul>
@@ -340,15 +484,17 @@
                 <Section title="Your State" subtitle="Regulatory authority & quick links">
                   <KeyValue label="State" value={`${state.name} (${state.code})`} />
                   <KeyValue label="Plan" value={state.plan} />
-                  {STATE_NOTES[stateCode] && (<>
-                    <KeyValue label="Authority" value={STATE_NOTES[stateCode].authority} />
-                    <KeyValue label="Hotline" value={STATE_NOTES[stateCode].phone} />
-                    <KeyValue label="Website" value={STATE_NOTES[stateCode].portal} href={STATE_NOTES[stateCode].portal} />
-                  </>)}
+                  {STATE_NOTES[stateCode] && (
+                    <>
+                      <KeyValue label="Authority" value={STATE_NOTES[stateCode].authority} />
+                      <KeyValue label="Hotline" value={STATE_NOTES[stateCode].phone} />
+                      <KeyValue label="Website" value={STATE_NOTES[stateCode].portal} href={STATE_NOTES[stateCode].portal} />
+                    </>
+                  )}
                   <div className="grid grid-cols-2 gap-2 pt-2">
-                    <a className="rounded-xl border px-3 py-2 text-sm text-center hover:bg-gray-50" href={`tel:${COMPANY.safetyHotline.replace(/[^0-9]/g,'')}`}>Call Nick Vosters</a>
+                    <a className="rounded-xl border px-3 py-2 text-sm text-center hover:bg-gray-50" href={`tel:${COMPANY.safetyHotline.replace(/[^0-9]/g, "")}`}>Call Nick Vosters</a>
                     <a className="rounded-xl border px-3 py-2 text-sm text-center hover:bg-gray-50" href={`mailto:${COMPANY.safetyEmail}`}>Email Nick</a>
-                    <a className="rounded-xl border px-3 py-2 text-sm text-center hover:bg-gray-50" href={`tel:${(COMPANY.backupSafetyMobile||'').replace(/[^0-9]/g,'')}`}>Call {COMPANY.backupSafetyName}</a>
+                    <a className="rounded-xl border px-3 py-2 text-sm text-center hover:bg-gray-50" href={`tel:${(COMPANY.backupSafetyMobile || "").replace(/[^0-9]/g, "")}`}>Call {COMPANY.backupSafetyName}</a>
                     <a className="rounded-xl border px-3 py-2 text-sm text-center hover:bg-gray-50" href={`mailto:${COMPANY.backupSafetyEmail}`}>Email {COMPANY.backupSafetyName}</a>
                   </div>
                 </Section>
@@ -368,7 +514,8 @@
             </main>
 
             <footer className="max-w-6xl mx-auto px-4 pb-10 pt-4 text-xs text-gray-500">
-              <div className="bg-yellow-50 border rounded-xl p-3"><div className="font-semibold text-yellow-900">Heads-up</div>
+              <div className="bg-yellow-50 border rounded-xl p-3">
+                <div className="font-semibold text-yellow-900">Heads-up</div>
                 <p className="mt-1">This guide provides practical steps and scripts. It is not legal advice. For state-specific requirements or citation decisions, contact Safety or Counsel.</p>
               </div>
               <div className="mt-3">© {new Date().getFullYear()} {COMPANY.name}. All rights reserved.</div>
@@ -377,7 +524,7 @@
         );
       }
 
-      ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+      ReactDOM.createRoot(document.getElementById("root")).render(<App />);
     </script>
   </body>
 </html>
