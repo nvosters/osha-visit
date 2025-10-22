@@ -1,0 +1,56 @@
+import React, { useMemo, useState, useEffect, useRef } from "react";
+
+/**
+ * OSHA Surprise Visit – Manager Resource (Multi‑State)
+ * Added SharePoint links for OSHA Logs, Policies, SDS Library, Training Materials, and LOTO Procedures.
+ */
+
+const COMPANY = {
+  name: "Bauer Built, Inc.",
+  logoSrc: "Bauer-Built.png",
+  safetyHotline: "715-279-8972",
+  safetyEmail: "Nick.Vosters@bauerbuilt.com",
+  hrEmail: "chelsea.schneider@bauerbuilt.com",
+  backupSafetyName: "Reggie Adjei Poku",
+  backupSafetyMobile: "715-279-7518",
+  backupSafetyHome: "715-672-2816",
+  backupSafetyEmail: "Reggie.AdjeiPoku@bauerbuilt.com",
+  links: {
+    oshaLogs: "https://bauerbuiltinc.sharepoint.com/sites/SafetyandRisk/Safety%20Document%20Library?id=%2Fsites%2FSafetyandRisk%2FSafety%20Document%20Library%2FOSHA%20Logs&viewid=e4dbc77a-096b-4dee-9ac5-81ee623f3a69&newTargetListUrl=https%3A%2F%2Fbauerbuiltinc%2Esharepoint%2Ecom%2Fsites%2FSafetyandRisk%2FSafety%20Document%20Library",
+    policies: "https://bauerbuiltinc.sharepoint.com/sites/SafetyandRisk/Safety%20Document%20Library?id=%2Fsites%2FSafetyandRisk%2FSafety%20Document%20Library%2FOSHA%20Logs&viewid=e4dbc77a-096b-4dee-9ac5-81ee623f3a69&newTargetListUrl=https%3A%2F%2Fbauerbuiltinc%2Esharepoint%2Ecom%2Fsites%2FSafetyandRisk%2FSafety%20Document%20Library",
+    sdsLibrary: "https://bauerbuiltinc.sharepoint.com/:f:/s/SafetyandRisk/EmhIV-qK6SNAqkMPodbSWsIBiVzC01-YWIh68cRBqsDSiA?e=kFsEXM",
+    training: "https://bauerbuiltinc.sharepoint.com/:f:/s/SafetyandRisk/Eq-l1F604k5Hispq78Qc0ugByUTMxJ8wEnewmSihGjuRUg?e=RxWBvb",
+    loto: "https://bauerbuiltinc.sharepoint.com/:f:/s/SafetyandRisk/En9o5Uo8SfhIlf9ldViADzYBHshIYscTTtxeZ8OU5BJnpg?e=h0cDx1",
+  },
+};
+
+export default function App() {
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <header className="sticky top-0 z-40 backdrop-blur bg-white/80 border-b">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <img src={COMPANY.logoSrc} alt="Bauer Built" className="h-10 w-auto" />
+            <div>
+              <h1 className="text-base md:text-lg font-semibold">Surprise OSHA Visit – Manager Resource</h1>
+              <p className="text-xs text-gray-500">{COMPANY.name} • Tire Service • Warehousing • Retread</p>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <section className="bg-white border rounded-2xl p-6 shadow-sm">
+          <h2 className="text-lg font-semibold mb-2">Company Resources</h2>
+          <ul className="list-disc pl-5 space-y-2 text-sm text-gray-800">
+            <li><a href={COMPANY.links.oshaLogs} target="_blank" rel="noreferrer" className="underline text-blue-700">OSHA Logs</a> – 300/300A/301 for current and prior years</li>
+            <li><a href={COMPANY.links.policies} target="_blank" rel="noreferrer" className="underline text-blue-700">Safety Policies</a> – Official written programs and procedures</li>
+            <li><a href={COMPANY.links.sdsLibrary} target="_blank" rel="noreferrer" className="underline text-blue-700">SDS Library</a> – Safety Data Sheets by facility and chemical</li>
+            <li><a href={COMPANY.links.training} target="_blank" rel="noreferrer" className="underline text-blue-700">Training Materials</a> – Course materials and employee rosters</li>
+            <li><a href={COMPANY.links.loto} target="_blank" rel="noreferrer" className="underline text-blue-700">Lockout/Tagout Procedures</a> – Machine-specific energy control steps</li>
+          </ul>
+        </section>
+      </main>
+    </div>
+  );
+}
